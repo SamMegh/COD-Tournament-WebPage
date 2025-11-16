@@ -3,6 +3,7 @@ import Navbar from './components/Navbar';
 import RecentSection from './components/resentSection';
 import RecentTournamentSection from './components/recentTournamentSecrion';
 import FooterSection from './components/fotterSection';
+import AboutSection from './components/aboutSection';
 
 
 const App = () => {
@@ -12,6 +13,7 @@ const App = () => {
         <Navbar />
        <HeroSection />
        <RecentSection />
+       <AboutSection />
        <RecentTournamentSection />
        <FooterSection />
       </div>
