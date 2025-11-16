@@ -1,5 +1,7 @@
 import HeroSection from './components/heroSection';
 import Navbar from './components/Navbar';
+import RecentSection from './components/resentSection';
+import RecentTournamentSection from './components/recentTournamentSecrion';
 
 
 const App = () => {
@@ -8,6 +10,8 @@ const App = () => {
  <div className="pt-10 bg-gray-900/50">
         <Navbar />
        <HeroSection />
+       <RecentSection />
+       <RecentTournamentSection />
       </div>
       </div>
      
