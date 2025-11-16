@@ -1,8 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 function PlayerRegistrationForm() {
   const [visiblePlayers, setVisiblePlayers] = useState(1); // Show 1 player initially (Player 3)
   const maxPlayers = 6; // Maximum 6 additional players after co-leader
+
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const handleAddPlayer = () => {
     if (visiblePlayers < maxPlayers) {

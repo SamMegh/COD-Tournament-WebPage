@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import logo from '../assets/B_logo-removebg-preview.png';
+import { useNavigate } from 'react-router-dom';
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -67,7 +69,9 @@ const Navbar = () => {
           <div className="hidden md:flex items-center space-x-4">
             <button className="relative group">
               <div className="absolute -inset-0.5 bg-linear-to-r from-orange-600 to-red-600 rounded-lg blur opacity-50 group-hover:opacity-100 transition duration-300"></div>
-              <div className="relative px-6 py-2.5 bg-linear-to-r from-orange-500 to-red-600 rounded-lg font-semibold text-white transition-all duration-200 hover:shadow-lg hover:shadow-orange-500/50 hover:scale-105">
+              <div className="relative px-6 py-2.5 bg-linear-to-r from-orange-500 to-red-600 rounded-lg font-semibold text-white transition-all duration-200 hover:shadow-lg hover:shadow-orange-500/50 hover:scale-105"
+              onClick={() => navigate('/registration')}
+              >
                 Register Now
               </div>
             </button>
@@ -136,7 +140,9 @@ const Navbar = () => {
               {link.name}
             </a>
           ))}
-          <button className="w-full mt-4 px-6 py-3 bg-linear-to-r from-orange-500 to-red-600 rounded-lg font-semibold text-white transition-all duration-200 hover:shadow-lg hover:shadow-orange-500/50">
+          <button className="w-full mt-4 px-6 py-3 bg-linear-to-r from-orange-500 to-red-600 rounded-lg font-semibold text-white transition-all duration-200 hover:shadow-lg hover:shadow-orange-500/50"
+          onClick={() => navigate('/registration')}
+          >
             Register Now
           </button>
         </div>
