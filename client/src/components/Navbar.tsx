@@ -16,12 +16,30 @@ const Navbar = () => {
   }, []);
 
   const navLinks = [
-    { name: 'Home', href: '/' },
-    { name: 'Matches', href: '#matches' },
-    { name: 'Tournaments', href: '#tournaments' },
-    { name: 'About', href: '/about' },
-    { name: 'Contact', href: '/contact' },
+    { name: 'Home', href: '/', isRoute: true },
+    { name: 'Matches', href: '#matches', isRoute: false },
+    { name: 'Tournaments', href: '#tournaments', isRoute: false },
+    { name: 'About', href: '/about', isRoute: true },
+    { name: 'Contact', href: '/contact', isRoute: true },
   ];
+
+  const handleNavClick = (link: typeof navLinks[0], e: React.MouseEvent) => {
+    if (!link.isRoute && link.href.startsWith('#')) {
+      e.preventDefault();
+      
+      // If we're not on home page, navigate to home first
+      if (window.location.pathname !== '/') {
+        navigate('/' + link.href);
+      } else {
+        // If we're already on home page, smooth scroll to section
+        const element = document.querySelector(link.href);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
+    }
+    setIsOpen(false);
+  };
 
   return (
     <nav
@@ -57,6 +75,7 @@ const Navbar = () => {
               <a
                 key={link.name}
                 href={link.href}
+                onClick={(e) => handleNavClick(link, e)}
                 className="text-gray-300 hover:text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-gray-800/50 relative group"
               >
                 {link.name}
@@ -134,8 +153,8 @@ const Navbar = () => {
             <a
               key={link.name}
               href={link.href}
+              onClick={(e) => handleNavClick(link, e)}
               className="text-gray-300 hover:text-white hover:bg-gray-800/50 block px-3 py-3 rounded-lg text-base font-medium transition-colors duration-200"
-              onClick={() => setIsOpen(false)}
             >
               {link.name}
             </a>
