@@ -14,11 +14,11 @@ const Navbar = () => {
   }, []);
 
   const navLinks = [
-    { name: 'Home', href: '#home' },
-    { name: 'Tournament', href: '#tournament' },
-    { name: 'Rules', href: '#rules' },
-    { name: 'Prizes', href: '#prizes' },
-    { name: 'Leaderboard', href: '#leaderboard' },
+    { name: 'Home', href: '/' },
+    { name: 'Matches', href: '#matches' },
+    { name: 'Tournaments', href: '#tournaments' },
+    { name: 'About', href: '/about' },
+    { name: 'Contact', href: '/contact' },
   ];
 
   return (

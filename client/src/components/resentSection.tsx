@@ -57,7 +57,9 @@ function RecentSection() {
   ];
 
   return (
-    <section className="relative py-20 overflow-hidden">
+    <section
+    id="matches"
+    className="relative py-20 overflow-hidden">
       {/* Background Effects */}
       <div className="absolute inset-0 bg-linear-to-b from-transparent via-orange-950/5 to-transparent"></div>
       <div className="absolute top-20 left-10 w-72 h-72 bg-orange-500/10 rounded-full blur-3xl"></div>

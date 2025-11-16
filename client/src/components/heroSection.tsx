@@ -112,8 +112,8 @@ function HeroSection() {
             {/* Stats Bar */}
             <div className="grid grid-cols-3 gap-4 py-6 max-w-xl">
               <div className="text-center lg:text-left">
-                <div className="text-3xl sm:text-4xl font-bold text-white">$10K+</div>
-                <div className="text-sm text-gray-400 uppercase tracking-wide">Prize Pool</div>
+                <div className="text-3xl sm:text-4xl font-bold text-white">₹99</div>
+                <div className="text-sm text-gray-400 uppercase tracking-wide">Entry Fee</div>
               </div>
               <div className="text-center lg:text-left">
                 <div className="text-3xl sm:text-4xl font-bold text-white">500+</div>
@@ -193,7 +193,7 @@ function HeroSection() {
                       </svg>
                     </div>
                   </div>
-                  <div className="text-5xl font-black text-white mb-2">$10,000+</div>
+                  <div className="text-5xl font-black text-white mb-2">₹1,500</div>
                   <div className="text-gray-400 text-sm">In cash and rewards</div>
                   <div className="mt-4 flex items-center gap-2">
                     <div className="h-2 flex-1 bg-gray-800 rounded-full overflow-hidden">
