@@ -1,3 +1,5 @@
+import logo from '../assets/Codm_Wallpapers.jpg';
+import logo2 from '../assets/Mythic Dark Shepherd 4K Wallpaper _ CODM.jpg';
 function AboutSection() {
   const teamMembers = [
     {
@@ -5,27 +7,18 @@ function AboutSection() {
       name: "Your Name",
       role: "Founder & Tournament Director",
       description: "Passionate CODM player with competitive experience. Founded BattleCore to create a professional esports platform for mobile gamers worldwide.",
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
+      image: logo2,
       instagram: "@your_instagram",
       email: "your@email.com"
     },
     {
       id: 2,
-      name: "Member Name",
-      role: "Head of Operations",
-      description: "Experienced in tournament organization and community building. Ensures every competition runs smoothly and professionally.",
-      image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop",
-      instagram: "@member_instagram",
-      email: "member@email.com"
-    },
-    {
-      id: 3,
-      name: "Member Name",
-      role: "Lead Moderator",
-      description: "Dedicated to maintaining fair play and positive community standards. Available to assist players and resolve any tournament-related issues.",
-      image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop",
-      instagram: "@member_instagram",
-      email: "member@email.com"
+      name: "Sam Megh",
+      role: "Lead Developer",
+      description: "Full-stack developer specializing in modern web technologies. Built the BattleCore platform from the ground up to deliver a seamless tournament experience.",
+      image: logo,
+      instagram: "@sam_megh",
+      email: "sam@email.com"
     }
   ];
 
@@ -139,7 +132,7 @@ function AboutSection() {
         <div className="mt-16 text-center">
           <div className="inline-block p-8 bg-gray-900/40 backdrop-blur-sm border border-gray-800 rounded-2xl">
             <h3 className="text-2xl font-black text-white mb-3">
-              Want to Join Our Team?
+              Want to Join Our Group?
             </h3>
             <p className="text-gray-400 mb-6 max-w-xl">
               We're always looking for passionate individuals to help grow the BattleCore community.
