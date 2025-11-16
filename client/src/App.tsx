@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import HomeScreen from "./screen/HomeScreen";
 import AboutSection from "./screen/AboutPage";
 import ContactPage from "./screen/ContactPage";
+import PlayerRegistrationForm from "./components/playerRegistationForm";
 
 const App = () => {
   return (
@@ -15,6 +16,7 @@ const App = () => {
         <Route path="/" element={<HomeScreen />} />
         <Route path="/about" element={<AboutSection />} />
         <Route path="/contact" element={<ContactPage />} />
+        <Route path="/registration" element={<PlayerRegistrationForm />} />
       </Routes>
       </div>
       </div>
