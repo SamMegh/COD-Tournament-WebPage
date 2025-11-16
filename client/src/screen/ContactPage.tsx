@@ -97,7 +97,7 @@ function ContactPage() {
                   id="message"
                   name="message"
                   required
-                  rows="5"
+                  rows={5}
                   className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-colors resize-none"
                   placeholder="Tell us what's on your mind..."
                 ></textarea>
