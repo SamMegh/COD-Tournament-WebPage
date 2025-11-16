@@ -56,6 +56,36 @@ function PlayerRegistrationForm() {
               </div>
             </div>
 
+            {/* Team Logo Upload */}
+            <div className="mb-6">
+              <label htmlFor="team-logo" className="block text-sm font-semibold text-gray-300 mb-2">
+                Team Logo <span className="text-gray-500">(Optional)</span>
+              </label>
+              <div className="flex items-center gap-4">
+                <div className="w-20 h-20 bg-gray-800/50 border-2 border-dashed border-gray-700 rounded-lg flex items-center justify-center">
+                  <svg className="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <input
+                    type="file"
+                    id="team-logo"
+                    name="team-logo"
+                    accept="image/*"
+                    className="hidden"
+                  />
+                  <label 
+                    htmlFor="team-logo"
+                    className="inline-block px-4 py-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-orange-500/50 rounded-lg text-gray-300 hover:text-white text-sm font-medium transition-all duration-300 cursor-pointer"
+                  >
+                    Choose Image
+                  </label>
+                  <p className="text-gray-500 text-xs mt-2">PNG, JPG up to 5MB</p>
+                </div>
+              </div>
+            </div>
+
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="leader-name" className="block text-sm font-semibold text-gray-300 mb-2">
