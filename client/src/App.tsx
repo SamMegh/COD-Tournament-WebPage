@@ -2,6 +2,7 @@ import HeroSection from './components/heroSection';
 import Navbar from './components/Navbar';
 import RecentSection from './components/resentSection';
 import RecentTournamentSection from './components/recentTournamentSecrion';
+import FooterSection from './components/fotterSection';
 
 
 const App = () => {
@@ -12,6 +13,7 @@ const App = () => {
        <HeroSection />
        <RecentSection />
        <RecentTournamentSection />
+       <FooterSection />
       </div>
       </div>
      
