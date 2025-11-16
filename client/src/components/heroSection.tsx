@@ -69,25 +69,13 @@ function HeroSection() {
   }, []);
 
   return (
-    <section className="relative min-h-screen bg-gray-950 overflow-hidden">
+    <section className="relative min-h-screen overflow-hidden">
       {/* Animated Background */}
       <div ref={canvasRef} className="absolute inset-0 z-0"></div>
 
-      {/* Background Gradient Overlays */}
-      <div className="absolute inset-0 bg-linear-to-br from-gray-900 via-gray-950 to-black z-0"></div>
-      <div className="absolute top-0 right-0 w-1/2 h-full bg-linear-to-l from-orange-950/20 to-transparent z-0"></div>
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-orange-600/10 rounded-full blur-3xl z-0"></div>
-      <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-red-600/10 rounded-full blur-3xl z-0"></div>
-
-      {/* Grid Pattern Overlay */}
-      <div 
-        className="absolute inset-0 z-0 opacity-10"
-        style={{
-          backgroundImage: `linear-gradient(rgba(249, 115, 22, 0.1) 1px, transparent 1px),
-                           linear-gradient(90deg, rgba(249, 115, 22, 0.1) 1px, transparent 1px)`,
-          backgroundSize: '50px 50px'
-        }}
-      ></div>
+      {/* Background Gradient Overlays - Removed */}
+      
+      {/* Grid Pattern Overlay - Removed */}
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 min-h-screen items-center py-20">
@@ -297,8 +285,6 @@ function HeroSection() {
         </div>
       </div>
 
-      {/* Bottom Fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-linear-to-t from-gray-950 to-transparent z-10"></div>
     </section>
   );
 }
