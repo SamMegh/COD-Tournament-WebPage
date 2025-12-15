@@ -1,5 +1,5 @@
 import logo from '../assets/Codm_Wallpapers.jpg';
-import logo2 from '../assets/Mythic Dark Shepherd 4K Wallpaper _ CODM.jpg';
+import logo2 from '../assets/B_logo-removebg-preview.png';
 function AboutSection() {
   const teamMembers = [
     {
