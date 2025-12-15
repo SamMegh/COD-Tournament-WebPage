@@ -17,16 +17,13 @@ function FooterSection() {
 
           {/* Links */}
           <div className="flex items-center gap-6">
-            <a href="#" className="text-gray-400 hover:text-orange-500 text-sm transition-colors">
+            <a href="/about" className="text-gray-400 hover:text-orange-500 text-sm transition-colors">
               About
             </a>
-            <a href="#" className="text-gray-400 hover:text-orange-500 text-sm transition-colors">
-              Tournaments
-            </a>
-            <a href="#" className="text-gray-400 hover:text-orange-500 text-sm transition-colors">
+            <a href="/rules" className="text-gray-400 hover:text-orange-500 text-sm transition-colors">
               Rules
             </a>
-            <a href="#" className="text-gray-400 hover:text-orange-500 text-sm transition-colors">
+            <a href="/contact" className="text-gray-400 hover:text-orange-500 text-sm transition-colors">
               Contact
             </a>
           </div>
