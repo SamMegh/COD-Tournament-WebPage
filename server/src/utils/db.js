@@ -1,7 +1,10 @@
 import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 export async function connectDB() {
-  const mongoURI = process.env.MONGO_URI || 'mongodb://localhost:27017/COD_Tournament_DB1';
+  const mongoURI = process.env.MONGO_URI;
     try {
         await mongoose.connect(mongoURI, {
          

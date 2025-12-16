@@ -23,6 +23,13 @@ const userSchema = new mongoose.Schema(
       unique: true,
       match: [/^[6-9]\d{9}$/, "Please enter a valid Indian phone number"]
     },
+    timestamp:[
+      {
+        type:String,
+      }
+    ],
+
+
 
     password: {
       type: String,

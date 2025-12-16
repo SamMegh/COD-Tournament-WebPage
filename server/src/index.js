@@ -1,6 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
-import Userrouter from "./routes/UserAuthRouter.js";
+import authrouter from "./routes/auth.router.js";
 import { connectDB } from "./utils/db.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -16,13 +16,13 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: process.env.Client_URL,
   credentials: true
 }));
 
 
 // 🔹 Routes
-app.use("/api", Userrouter);
+app.use("/api", authrouter);
 
 
 

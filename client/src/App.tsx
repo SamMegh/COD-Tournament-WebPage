@@ -7,6 +7,7 @@ import Signup from "./components/SignupPage";
 import LoginPage from "./components/LoginPage";
 import { useEffect } from "react";
 import RulesPage from "./screen/RulesPage";
+import PlayerRegistrationForm from "./components/playerRegistationForm";
 
 const ScrollToHash = () => {
   const location = useLocation();
@@ -39,6 +40,7 @@ const App = () => {
           <Route path="/about" element={<AboutSection />} />
           <Route path="/rules" element={<RulesPage />} />
           <Route path="/contact" element={<ContactPage />} />
+          <Route path="/registration" element={<PlayerRegistrationForm />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/login" element={<LoginPage />} />
         </Routes>

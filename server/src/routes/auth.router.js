@@ -30,4 +30,4 @@ router.get('/checkAuth',protect,checkauth);
 //   }
 // ); 
 
-export default Userrouter;
+export default router;
