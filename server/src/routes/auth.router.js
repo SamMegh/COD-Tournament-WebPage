@@ -1,23 +1,20 @@
 import express from "express";
-import { register, login, logout} from "../controller/UserAuthController.js";
-import { authRequired } from "../middleware/UserAuth.js";
+import { register, login, logout, checkauth} from "../controller/user.controller.js";
+import { protect } from "../middleware/middleware.js";
 
 
 
-const Userrouter = express.Router();
+const router = express.Router();
 
 // ------------------ Public Routes ------------------ //
 
-Userrouter.post("/register", register);
-Userrouter.post("/login", login);
- Userrouter.post("/logout", logout);
-
- Userrouter.get("/test", authRequired,(req,res)=>{
-  res.send("User Auth Route Working Fine");
- });
-// Userrouter.post("/GoogleLogin",GoogleLogin);   
+router.post("/register", register);
+router.post("/login", login);
+router.post("/logout", logout);
+router.get('/checkAuth',protect,checkauth);
 
 
+// Router.post("/GoogleLogin",GoogleLogin);   
 // router.get(
 //   '/github',
 //   passport.authenticate('github', { scope: ['user:email'] })

@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import validator from "validator";
-import User from "../modules/UserAuthSchema.js";
+import User from "../model/user.model.js";
 import { generateToken } from "../lib/GenrateToken.js";
 
 
@@ -37,17 +37,16 @@ export const register = async (req, res) => {
     // ✅ Strong password validation
     if (
       !validator.isStrongPassword(password, {
-        minLength: 8,
+        minLength: 6,
         minLowercase: 1,
         minUppercase: 1,
-        minNumbers: 1,
-        minSymbols: 1,
+        minNumbers: 1
       })
     ) {
       return res.status(400).json({
         success: false,
         message:
-          "Password must contain uppercase, lowercase, number & symbol",
+          "Password must contain Uppercase, Lowercase and Number.",
       });
     }
 
@@ -76,14 +75,8 @@ export const register = async (req, res) => {
     });
 
     // ✅ Generate token
-    const token = generateToken(user);
+    generateToken(res, user._id);
 
-    // ✅ Set cookie
-    res.cookie("token", token, {
-      httpOnly: true,
-      sameSite: "lax", // localhost ke liye best
-      maxAge: 24 * 60 * 60 * 1000,
-    });
 
     // ✅ Success response
     res.status(201).json({
@@ -130,14 +123,7 @@ export const login = async (req, res) => {
       return res.status(400).json({ success: false, message: "Invalid credentials" });
     }
 
-    const token = generateToken(user);
-
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 24 * 60 * 60 * 1000
-    });
+   generateToken(res, user._id);
 
     res.status(200).json({ 
       success: true, 
@@ -173,3 +159,6 @@ export const logout = async (req, res) => {
   }
 };
 
+export const checkauth = (req, res) => {
+  res.status(200).json({ success: true, message: "User is authenticated", user: req.user });
+};
