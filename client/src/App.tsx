@@ -3,7 +3,8 @@ import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import HomeScreen from "./screen/HomeScreen";
 import AboutSection from "./screen/AboutPage";
 import ContactPage from "./screen/ContactPage";
-import PlayerRegistrationForm from "./components/playerRegistationForm";
+import Signup from "./components/SignupPage";
+import LoginPage from "./components/LoginPage";
 import { useEffect } from "react";
 import RulesPage from "./screen/RulesPage";
 
@@ -12,7 +13,6 @@ const ScrollToHash = () => {
 
   useEffect(() => {
     if (location.hash) {
-      // Small delay to ensure content is rendered
       setTimeout(() => {
         const element = document.querySelector(location.hash);
         if (element) {
@@ -25,25 +25,34 @@ const ScrollToHash = () => {
   return null;
 };
 
-
 const App = () => {
+  const location = useLocation(); // ✅ Use it inside the component
+  const hideNavbar = location.pathname === "/signup" || location.pathname === "/login";
+
   return (
-    <BrowserRouter>
-    <ScrollToHash />
     <div className="Main-container">
       <div className="pt-10 bg-gray-900/50">
-    <Navbar />
-      <Routes>
-        <Route path="/" element={<HomeScreen />} />
-        <Route path="/about" element={<AboutSection />} />
-        <Route path="/rules" element={<RulesPage />} />
-        <Route path="/contact" element={<ContactPage />} />
-        <Route path="/registration" element={<PlayerRegistrationForm />} />
-      </Routes>
+        {!hideNavbar && <Navbar />}
+        <Routes>
+          
+          <Route path="/" element={<HomeScreen />} />
+          <Route path="/about" element={<AboutSection />} />
+          <Route path="/rules" element={<RulesPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/login" element={<LoginPage />} />
+        </Routes>
       </div>
-      </div>
-    </BrowserRouter>
+    </div>
   );
 };
 
-export default App;
+// Wrap App with BrowserRouter in a separate component
+const AppWrapper = () => (
+  <BrowserRouter>
+    <ScrollToHash />
+    <App />
+  </BrowserRouter>
+);
+
+export default AppWrapper;
