@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useApi } from "../lib/Axios.tsx"; // 👈 path apne hisaab se
-import { toast } from "react-toastify"; // npm install react-toastify
-import 'react-toastify/dist/ReactToastify.css';
+import { useApi } from "../lib/Axios";
+import { toast } from "react-toastify";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
+import "react-toastify/dist/ReactToastify.css";
 
 const SignUpForm = () => {
   const navigate = useNavigate();
@@ -12,7 +14,7 @@ const SignUpForm = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    phone: "",
+    phone: "", // 👈 full international number
     password: "",
     confirmPassword: "",
     role: "game_player",
@@ -20,15 +22,18 @@ const SignUpForm = () => {
 
   const [loading, setLoading] = useState(false);
 
-  // input change handler
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // submit handler
   const handleRegister = async () => {
+    if (!formData.phone || formData.phone.length < 8) {
+      toast.error("Enter valid phone number");
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
       toast.error("Passwords do not match");
       return;
@@ -42,13 +47,12 @@ const SignUpForm = () => {
         {
           name: formData.name,
           email: formData.email,
-          phone: formData.phone,
+          phone: `+${formData.phone}`, // 👈 international format
           password: formData.password,
           role: formData.role,
         },
         { withCredentials: true }
       );
-
 
       toast.success(res.data.message || "Registration successful");
       navigate("/login");
@@ -61,9 +65,15 @@ const SignUpForm = () => {
 
   return (
     <section className="min-h-screen flex justify-center items-center bg-gray-200 py-20">
-      <div className="bg-gray-700 p-8 rounded-xl shadow-lg w-full max-w-md space-y-4">
-        <h2 className="text-2xl font-bold text-center text-white mb-4">
-          Sign Up
+      <div className="bg-gray-800 p-8 rounded-xl shadow-lg w-full max-w-md space-y-4">
+
+        {/* LOGO */}
+        <div className="flex justify-center">
+          <img src="/logo.png" alt="Logo" className="h-16" />
+        </div>
+
+        <h2 className="text-2xl font-bold text-center text-white">
+          Create Account
         </h2>
 
         <input
@@ -72,7 +82,7 @@ const SignUpForm = () => {
           placeholder="Full Name"
           value={formData.name}
           onChange={handleChange}
-          className="w-full p-3 rounded bg-gray-600 text-white"
+          className="w-full p-3 rounded bg-gray-700 text-white"
         />
 
         <input
@@ -81,17 +91,48 @@ const SignUpForm = () => {
           placeholder="Email Address"
           value={formData.email}
           onChange={handleChange}
-          className="w-full p-3 rounded bg-gray-600 text-white"
+          className="w-full p-3 rounded bg-gray-700 text-white"
         />
 
-        <input
-          type="text"
-          name="phone"
-          placeholder="Phone Number"
-          value={formData.phone}
-          onChange={handleChange}
-          className="w-full p-3 rounded bg-gray-600 text-white"
-        />
+        {/* 🌍 PHONE INPUT WITH FLAG + COUNTRY CODE */}
+{/* 🌍 PHONE INPUT WITH FLAG + COUNTRY CODE */}
+<div className="w-full">
+  <PhoneInput
+    country={"in"}
+    value={formData.phone}
+    onChange={(phone) =>
+      setFormData({ ...formData, phone })
+    }
+    containerStyle={{
+      width: "100%",
+    }}
+    inputStyle={{
+      width: "100%",
+      height: "48px",
+      backgroundColor: "#374151",
+      color: "white",
+      borderRadius: "0.375rem",
+      border: "1px solid #4b5563",
+      paddingLeft: "60px", // 🔥 VERY IMPORTANT
+    }}
+    buttonStyle={{
+      backgroundColor: "#374151",
+      border: "1px solid #4b5563",
+      borderRadius: "0.375rem 0 0 0.375rem",
+    }}
+    dropdownStyle={{
+      backgroundColor: "#1f2937",
+      color: "white",
+    }}
+    inputProps={{
+      name: "phone",
+      required: true,
+      autoFocus: false,
+      placeholder: "Phone Number",
+    }}
+  />
+</div>
+
 
         <input
           type="password"
@@ -99,7 +140,7 @@ const SignUpForm = () => {
           placeholder="Password"
           value={formData.password}
           onChange={handleChange}
-          className="w-full p-3 rounded bg-gray-600 text-white"
+          className="w-full p-3 rounded bg-gray-700 text-white"
         />
 
         <input
@@ -108,14 +149,14 @@ const SignUpForm = () => {
           placeholder="Confirm Password"
           value={formData.confirmPassword}
           onChange={handleChange}
-          className="w-full p-3 rounded bg-gray-600 text-white"
+          className="w-full p-3 rounded bg-gray-700 text-white"
         />
 
         <select
           name="role"
           value={formData.role}
           onChange={handleChange}
-          className="w-full p-3 rounded bg-gray-600 text-white"
+          className="w-full p-3 rounded bg-gray-700 text-white"
         >
           <option value="game_player">Game Player</option>
           <option value="tournament_manager">Tournament Manager</option>
@@ -124,15 +165,15 @@ const SignUpForm = () => {
         <button
           onClick={handleRegister}
           disabled={loading}
-          className="w-full py-3 mt-4 bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold rounded-lg"
+          className="w-full py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold rounded-lg"
         >
           {loading ? "Registering..." : "Register Now"}
         </button>
 
         <p className="text-center text-gray-300 text-sm">
           Already have an account?{" "}
-          <Link to="/login" className="text-orange-400 font-bold hover:underline">
-            Login!
+          <Link to="/login" className="text-orange-400 font-bold">
+            Login
           </Link>
         </p>
       </div>

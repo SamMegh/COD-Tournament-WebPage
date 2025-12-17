@@ -17,17 +17,14 @@ const userSchema = new mongoose.Schema(
       trim: true
     },
 
-    phoneNumber: {
-      type: String,
-      required: true,
-      unique: true,
-      match: [/^[6-9]\d{9}$/, "Please enter a valid Indian phone number"]
-    },
-    timestamp:[
-      {
-        type:String,
-      }
-    ],
+phoneNumber: {
+  type: String,
+  required: true,
+  unique: true,
+  trim: true,
+  match: [/^\+[1-9]\d{6,14}$/, "Invalid phone number"],
+},
+
 
 
 
