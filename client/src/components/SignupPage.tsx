@@ -98,36 +98,16 @@ const SignUpForm = () => {
 {/* 🌍 PHONE INPUT WITH FLAG + COUNTRY CODE */}
 <div className="w-full">
   <PhoneInput
-    country={"in"}
+    country="in"
     value={formData.phone}
-    onChange={(phone) =>
-      setFormData({ ...formData, phone })
-    }
-    containerStyle={{
-      width: "100%",
-    }}
-    inputStyle={{
-      width: "100%",
-      height: "48px",
-      backgroundColor: "#374151",
-      color: "white",
-      borderRadius: "0.375rem",
-      border: "1px solid #4b5563",
-      paddingLeft: "60px", // 🔥 VERY IMPORTANT
-    }}
-    buttonStyle={{
-      backgroundColor: "#374151",
-      border: "1px solid #4b5563",
-      borderRadius: "0.375rem 0 0 0.375rem",
-    }}
-    dropdownStyle={{
-      backgroundColor: "#1f2937",
-      color: "white",
-    }}
+    onChange={(phone) => setFormData({ ...formData, phone })}
+    containerClass="phone-container"
+    inputClass="phone-input"
+    buttonClass="phone-button"
+    dropdownClass="phone-dropdown"
     inputProps={{
       name: "phone",
       required: true,
-      autoFocus: false,
       placeholder: "Phone Number",
     }}
   />
