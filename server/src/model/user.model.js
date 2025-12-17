@@ -17,13 +17,13 @@ const userSchema = new mongoose.Schema(
       trim: true,
     },
 
-    phoneNumber: {
-      type: String,
-      unique: true,
-      sparse: true,   // ✅ allow null for Google users
-      trim: true,
-      match: [/^\+[1-9]\d{6,14}$/, "Invalid phone number"],
-    },
+ phoneNumber: {
+  type: String,
+  unique: true,
+  sparse: true,
+  trim: true,
+  match: [/^\+[1-9]\d{6,14}$/, "Invalid phone number"],
+},
 
     password: {
       type: String,

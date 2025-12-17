@@ -5,6 +5,8 @@ import AboutSection from "./screen/AboutPage";
 import ContactPage from "./screen/ContactPage";
 import Signup from "./components/SignupPage";
 import LoginPage from "./components/LoginPage";
+
+
 import { useEffect } from "react";
 import RulesPage from "./screen/RulesPage";
 import PlayerRegistrationForm from "./components/playerRegistationForm";

@@ -1,6 +1,7 @@
 import express from "express";
-import { register, login, logout, checkauth} from "../controller/user.controller.js";
+import { register, login, logout, checkauth,googleSignup} from "../controller/user.controller.js";
 import { protect } from "../middleware/middleware.js";
+
 
 
 
@@ -14,7 +15,8 @@ router.post("/logout", logout);
 router.get('/checkAuth',protect,checkauth);
 
 
-// Router.post("/GoogleLogin",GoogleLogin);   
+router.post("/googleSignup",googleSignup);   
+
 // router.get(
 //   '/github',
 //   passport.authenticate('github', { scope: ['user:email'] })

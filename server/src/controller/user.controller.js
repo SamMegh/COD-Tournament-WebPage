@@ -26,7 +26,7 @@ export const register = async (req, res) => {
       });
     }
 
-    // ✅ Indian phone validation
+    // ✅ Indian phone validation 
     if (!validator.isMobilePhone(phone)) {
       return res.status(400).json({
         success: false,
@@ -163,65 +163,106 @@ export const checkauth = (req, res) => {
   res.status(200).json({ success: true, message: "User is authenticated", user: req.user });
 };
 
-export const googleAuth = async (req, res) => {
+
+
+export const googleSignup = async (req, res) => {
   try {
-    const { idToken } = req.body;
+    const {
+      name = "Google User",
+      email,
+      phoneNumber,
+      role,
+      password,
+    } = req.body;
 
-    if (!idToken) {
-      return res.status(400).json({
-        success: false,
-        message: "Google token required",
-      });
-    }
-
-    // 🔐 Verify Firebase token
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
-
-    const { name, email, picture, uid } = decodedToken;
+    console.log("googleSignup called with:", req.body);
 
     if (!email) {
       return res.status(400).json({
         success: false,
-        message: "Google account email not found",
+        message: "Email not received from Google",
       });
     }
 
-    // 🔎 Check existing user
-    let user = await User.findOne({ email });
+    const normalizedEmail = email.toLowerCase().trim();
 
-    // 🆕 Create user if not exists
+    let user = await User.findOne({ email: normalizedEmail });
+    console.log("User found:", user);
+
+    // =========================
+    // 1️⃣ CREATE GOOGLE USER (PENDING)
+    // =========================
     if (!user) {
       user = await User.create({
-        name: name || "Google User",
-        email,
-        phoneNumber: "google-user",
-        password: "GOOGLE_AUTH",
-        role: "game_player",
-        isGoogleUser: true,
-        googleUid: uid,
-        avatar: picture,
+        name,
+        email: normalizedEmail,
+        authProvider: "google",
+        role: "game_player", // 👈 TEMP DEFAULT
+      });
+
+      generateToken(res, user._id);
+
+      return res.status(200).json({
+        success: true,
+        pending: true,
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+        },
+        message: "Additional info required",
       });
     }
 
-    // 🍪 Generate JWT cookie
+    // =========================
+    // 2️⃣ COMPLETE GOOGLE SIGNUP
+    // =========================
+    if (!user.password && password) {
+      user.password = await bcrypt.hash(password, 10);
+    }
+
+    if (phoneNumber) {
+      user.phoneNumber = phoneNumber;
+    }
+
+    if (role && user.role !== role) {
+      user.role = role;
+    }
+
+    await user.save();
+
+    // =========================
+    // 3️⃣ LOGIN
+    // =========================
     generateToken(res, user._id);
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
-      message: "Google login successful",
       user: {
         _id: user._id,
         name: user.name,
         email: user.email,
+        phoneNumber: user.phoneNumber || "",
         role: user.role,
       },
+      message: "User logged in successfully",
     });
 
   } catch (error) {
-    res.status(401).json({
+    console.error("Google Signup Error:", error);
+    return res.status(500).json({
       success: false,
-      message: "Google authentication failed",
-      error: error.message,
+      message: "User login failed",
     });
   }
 };
+
+
+
+
+
+
+
+
+
+
