@@ -162,3 +162,66 @@ export const logout = async (req, res) => {
 export const checkauth = (req, res) => {
   res.status(200).json({ success: true, message: "User is authenticated", user: req.user });
 };
+
+export const googleAuth = async (req, res) => {
+  try {
+    const { idToken } = req.body;
+
+    if (!idToken) {
+      return res.status(400).json({
+        success: false,
+        message: "Google token required",
+      });
+    }
+
+    // 🔐 Verify Firebase token
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
+
+    const { name, email, picture, uid } = decodedToken;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: "Google account email not found",
+      });
+    }
+
+    // 🔎 Check existing user
+    let user = await User.findOne({ email });
+
+    // 🆕 Create user if not exists
+    if (!user) {
+      user = await User.create({
+        name: name || "Google User",
+        email,
+        phoneNumber: "google-user",
+        password: "GOOGLE_AUTH",
+        role: "game_player",
+        isGoogleUser: true,
+        googleUid: uid,
+        avatar: picture,
+      });
+    }
+
+    // 🍪 Generate JWT cookie
+    generateToken(res, user._id);
+
+    res.status(200).json({
+      success: true,
+      message: "Google login successful",
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    });
+
+  } catch (error) {
+    res.status(401).json({
+      success: false,
+      message: "Google authentication failed",
+      error: error.message,
+    });
+  }
+};

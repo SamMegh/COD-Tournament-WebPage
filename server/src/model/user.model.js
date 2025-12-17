@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
-      minlength: 2
+      minlength: 2,
     },
 
     email: {
@@ -14,32 +14,36 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
       lowercase: true,
-      trim: true
+      trim: true,
     },
 
-phoneNumber: {
-  type: String,
-  required: true,
-  unique: true,
-  trim: true,
-  match: [/^\+[1-9]\d{6,14}$/, "Invalid phone number"],
-},
-
-
-
+    phoneNumber: {
+      type: String,
+      unique: true,
+      sparse: true,   // ✅ allow null for Google users
+      trim: true,
+      match: [/^\+[1-9]\d{6,14}$/, "Invalid phone number"],
+    },
 
     password: {
       type: String,
-      required: true,
       minlength: 6,
-      select: false   // 🔐 security (password response me nahi jayega)
+      select: false, 
     },
+
+    authProvider: {
+      type: String,
+      enum: ["local", "google"],
+      default: "local",
+    },
+
+
 
     role: {
       type: String,
       enum: ["admin", "tournament_manager", "game_player"],
-      default: "game_player"
-    }
+      default: "game_player",
+    },
   },
   { timestamps: true }
 );
