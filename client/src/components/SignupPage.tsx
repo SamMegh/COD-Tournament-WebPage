@@ -1,4 +1,6 @@
 import { useState } from "react";
+import logoSvg from "../assets/logo.svg";
+import googleLogo from "../assets/google.logo.png";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useApi } from "../lib/Axios";
@@ -63,19 +65,40 @@ const SignUpForm = () => {
     }
   };
 
+  const googleSignUp = () => {
+    // Redirect to backend Google OAuth endpoint (replace if different)
+    try {
+      window.location.href = `${serverurl}/api/auth/google`;
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
     <section className="min-h-screen flex justify-center items-center bg-gray-200 py-20">
       <div className="bg-gray-800 p-8 rounded-xl shadow-lg w-full max-w-md space-y-4">
 
-        {/* LOGO */}
-        <div className="flex justify-center">
-          <img src="/logo.png" alt="Logo" className="h-16" />
-        </div>
+
 
         <h2 className="text-2xl font-bold text-center text-white">
           Create Account
         </h2>
 
+        {/*  GOOGLE SIGN UP */}
+ 
+        <button
+          type="button"
+          className="w-full flex items-center justify-center gap-4 bg-gray-300 text-[#232526] font-semibold text-lg py-3 rounded-lg shadow-md transition mb-2 mt-2 p"
+          
+        
+        >
+          <img
+            src={googleLogo}
+            alt="Google Logo"
+            className="w-7 h-7 bg-white rounded-full justify-end items-end"
+          />
+          Sign Up with Google 
+        </button>
         <input
           type="text"
           name="name"
@@ -142,10 +165,12 @@ const SignUpForm = () => {
           <option value="tournament_manager">Tournament Manager</option>
         </select>
 
+      
+
         <button
           onClick={handleRegister}
           disabled={loading}
-          className="w-full py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold rounded-lg"
+          className="w-full mt-3 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold rounded-lg"
         >
           {loading ? "Registering..." : "Register Now"}
         </button>
