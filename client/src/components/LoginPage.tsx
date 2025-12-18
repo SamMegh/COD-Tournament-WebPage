@@ -7,9 +7,8 @@ import { signInWithPopup } from "firebase/auth";
 import PendingGoogleForm from "./PendingGoogleForm";
 import googleLogo from "../assets/google.logo.png";
 import { useApi } from "../lib/Axios";
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
 
-// Interface for pending user
 interface PendingUser {
   name: string;
   email: string;
@@ -26,22 +25,21 @@ const LoginForm: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [pendingUser, setPendingUser] = useState<PendingUser | null>(null);
 
-  // Input change
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const togglePassword = () => setShowPassword(!showPassword);
 
-  // Email/Phone login
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     try {
       const res = await axios.post(
         `${serverurl}/api/login`,
-        { emailOrPhone: formData.emailOrPhone, password: formData.password },
+        formData,
         { withCredentials: true }
       );
+
       toast.success(res.data.message || "Login successful");
 
       const role = res.data.user.role;
@@ -56,48 +54,38 @@ const LoginForm: React.FC = () => {
     }
   };
 
-  // Google login / signup
-const handleGoogleLogin = async () => {
-  try {
-    setLoading(true);
-    const result = await signInWithPopup(auth, googleProvider);
-    const user = result.user;
+  const handleGoogleLogin = async () => {
+    try {
+      setLoading(true);
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
 
-    const name = user.displayName || "";
-    const email = user.email || "";
+      const res = await axios.post(
+        `${serverurl}/api/googleSignup`,
+        { name: user.displayName, email: user.email },
+        { withCredentials: true }
+      );
 
-    if (!email) throw new Error("Google account has no email");
+      if (res.data.pending) {
+        setPendingUser(res.data.user);
+      } else {
+        const role = res.data.user.role;
+        if (role === "game_player") navigate("/player-dashboard");
+        else if (role === "tournament_manager") navigate("/tournament-dashboard");
+        else navigate("/");
+      }
 
-    const res = await axios.post(
-      `${serverurl}/api/googleSignup`,
-      { name, email },  // abhi phoneNumber nahi bhej rahe front se
-      { withCredentials: true }
-    );
-
-    if (res.data.pending) {
-      // Pending form dikhao jisme user phoneNumber aur role bhar sake
-      setPendingUser({ name: res.data.user.name, email: res.data.user.email });
-    } else {
-      const role = res.data.user.role;
-      if (role === "game_player") navigate("/player-dashboard");
-      else if (role === "tournament_manager") navigate("/tournament-dashboard");
-      else navigate("/");
+    } catch (error: any) {
+      toast.error("Google login failed");
+    } finally {
+      setLoading(false);
     }
-  } catch (error: any) {
-    toast.error(error?.response?.data?.message || error.message || "Google login failed");
-    console.error(error);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
-
-  // If pending user exists, show PendingGoogleForm
   if (pendingUser) {
     return <PendingGoogleForm user={pendingUser} setPendingUser={setPendingUser} />;
   }
 
-  // Original login form
   return (
     <section className="min-h-screen flex justify-center items-center bg-gray-200 py-20">
       <form
@@ -111,17 +99,14 @@ const handleGoogleLogin = async () => {
           type="button"
           onClick={handleGoogleLogin}
           disabled={loading}
-          className="w-full flex items-center justify-center gap-4 bg-white text-gray-900 font-semibold text-lg py-3 rounded-lg shadow-md transition hover:bg-gray-100"
+          className="w-full flex items-center justify-center gap-4 bg-white text-gray-900 font-semibold text-lg py-3 rounded-lg"
         >
-          <img src={googleLogo} alt="Google Logo" className="w-7 h-7 rounded-full" />
-          {loading ? "Processing..." : "Sign in with Google"}
+          <img src={googleLogo} className="w-7 h-7" />
+          Sign in with Google
         </button>
 
-        <div className="flex items-center justify-center gap-2 text-gray-300 text-sm">
-          <span>or</span>
-        </div>
+        <div className="text-center text-gray-300">or</div>
 
-        {/* Email/Password */}
         <input
           type="text"
           name="emailOrPhone"
@@ -144,10 +129,20 @@ const handleGoogleLogin = async () => {
           />
           <span
             onClick={togglePassword}
-            className="absolute right-3 top-3 cursor-pointer text-gray-300"
+            className="absolute right-3 top-3 cursor-pointer"
           >
             {showPassword ? "🙈" : "👁️"}
           </span>
+        </div>
+
+        {/* 🔹 FORGOT PASSWORD BUTTON */}
+        <div className="text-right">
+          <Link
+            to="/forgot-password"
+            className="text-sm text-orange-400 hover:underline"
+          >
+            Forgot Password?
+          </Link>
         </div>
 
         <button

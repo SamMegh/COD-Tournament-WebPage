@@ -38,9 +38,7 @@ export const register = async (req, res) => {
     if (
       !validator.isStrongPassword(password, {
         minLength: 6,
-        minLowercase: 1,
-        minUppercase: 1,
-        minNumbers: 1
+   
       })
     ) {
       return res.status(400).json({
@@ -175,8 +173,6 @@ export const googleSignup = async (req, res) => {
       password,
     } = req.body;
 
-    console.log("googleSignup called with:", req.body);
-
     if (!email) {
       return res.status(400).json({
         success: false,
@@ -187,17 +183,16 @@ export const googleSignup = async (req, res) => {
     const normalizedEmail = email.toLowerCase().trim();
 
     let user = await User.findOne({ email: normalizedEmail });
-    console.log("User found:", user);
 
-    // =========================
-    // 1️⃣ CREATE GOOGLE USER (PENDING)
-    // =========================
+ 
+ // CREATE GOOGLE USER (PENDING)
+
     if (!user) {
       user = await User.create({
         name,
         email: normalizedEmail,
         authProvider: "google",
-        role: "game_player", // 👈 TEMP DEFAULT
+        role: "game_player", 
       });
 
       generateToken(res, user._id);
@@ -214,9 +209,9 @@ export const googleSignup = async (req, res) => {
       });
     }
 
-    // =========================
-    // 2️⃣ COMPLETE GOOGLE SIGNUP
-    // =========================
+  
+    // COMPLETE GOOGLE SIGNUP
+   
     if (!user.password && password) {
       user.password = await bcrypt.hash(password, 10);
     }
@@ -231,9 +226,9 @@ export const googleSignup = async (req, res) => {
 
     await user.save();
 
-    // =========================
-    // 3️⃣ LOGIN
-    // =========================
+
+    //  LOGIN
+    
     generateToken(res, user._id);
 
     return res.status(200).json({
