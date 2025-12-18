@@ -23,7 +23,7 @@ const LoginForm = () => {
   useEffect(() => {
     if (!window.google) return;
     window.google.accounts.id.initialize({
-      client_id: "776048365412-r16p659dgn6jppvdghs1j3909n5nrmdo.apps.googleusercontent.com",
+      client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
       callback: handleGoogleResponse,
     });
     window.google.accounts.id.renderButton(document.getElementById("googleButton"), { theme: "outline", size: "large" });

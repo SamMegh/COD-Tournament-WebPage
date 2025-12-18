@@ -1,25 +1,12 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import instance from "../lib/Axios";
 import PendingGoogleForm from "./PendingGoogleForm";
-import googleLogo from "../assets/google.logo.png";
-
-interface PendingUser {
-  _id: string;
-  name: string;
-  email: string;
-  phoneNumber?: string;
-  role?: string;
-}
-
-declare global {
-  interface Window {
-    google: any;
-  }
-}
+import type { userInterface } from "../Interface/user.interface";
+import axios from "axios";
 
 const SignUpForm = () => {
   const navigate = useNavigate();
@@ -34,37 +21,11 @@ const SignUpForm = () => {
   });
 
   const [loading, setLoading] = useState(false);
-  const [pendingUser, setPendingUser] = useState<PendingUser | null>(null);
-
-  const redirect = (role: string) => {
-    navigate(
-      role === "game_player"
-        ? "/player-dashboard"
-        : "/tournament-dashboard"
-    );
-  };
-
-  // 🔹 GOOGLE INIT (EXACT SAME AS LOGIN)
-  useEffect(() => {
-    if (!window.google) return;
-
-    window.google.accounts.id.initialize({
-      client_id:"776048365412-r16p659dgn6jppvdghs1j3909n5nrmdo.apps.googleusercontent.com",
-      callback: handleGoogleResponse,
-    });
-
-    window.google.accounts.id.renderButton(
-      document.getElementById("googleButton"),
-      {
-        theme: "outline",
-        size: "large",
-        width: "100%",
-      }
-    );
-  }, []);
+  const [pendingUser, setPendingUser] = useState<userInterface | null>(null);
+  const googleBtnRef = useRef<HTMLDivElement | null>(null);
 
   // 🔹 GOOGLE RESPONSE (EXACT SAME LOGIC)
-  const handleGoogleResponse = async (res: any) => {
+  const handleGoogleResponse =  useCallback(async(res: { credential: string }) => {
     setLoading(true);
     try {
       const response = await instance.post(
@@ -77,21 +38,43 @@ const SignUpForm = () => {
         setPendingUser(response.data.user);
       } else {
         localStorage.setItem("token", response.data.token);
-        localStorage.setItem(
-          "user",
-          JSON.stringify(response.data.user)
-        );
+        localStorage.setItem("user", JSON.stringify(response.data.user));
         toast.success("Signup successful");
-        redirect(response.data.user.role);
       }
-    } catch (err: any) {
-      toast.error(
-        err.response?.data?.message || "Google signup failed"
-      );
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        toast.error(err.response?.data?.message || "Google signup failed");
+      } else {
+        toast.error("An unexpected error occurred");
+      }
     } finally {
       setLoading(false);
     }
-  };
+  },[redirect]
+)
+  // 🔹 GOOGLE INIT (EXACT SAME AS LOGIN)
+  useEffect(() => {
+    if (!window.google?.accounts?.id) return;
+    if (!import.meta.env.VITE_GOOGLE_CLIENT_ID) return;
+
+    window.google.accounts.id.initialize({
+      client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+      callback: handleGoogleResponse,
+    });
+
+    if (googleBtnRef.current) {
+      window.google.accounts.id.renderButton(googleBtnRef.current, {
+        theme: "outline",
+        size: "large",
+      });
+    }
+
+    return () => {
+      window.google?.accounts.id.cancel();
+    };
+  }, [googleBtnRef, handleGoogleResponse]);
+
+
 
   // 🔹 NORMAL SIGNUP
   const handleRegister = async () => {
@@ -109,8 +92,12 @@ const SignUpForm = () => {
       });
       toast.success(res.data.message || "Registration successful");
       navigate("/login");
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || "Registration failed");
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        toast.error(err.response?.data?.message || "Registration failed");
+      } else {
+        toast.error("An unexpected error occurred");
+      }
     } finally {
       setLoading(false);
     }
@@ -118,10 +105,7 @@ const SignUpForm = () => {
 
   if (pendingUser)
     return (
-      <PendingGoogleForm
-        user={pendingUser}
-        setPendingUser={setPendingUser}
-      />
+      <PendingGoogleForm user={pendingUser} setPendingUser={setPendingUser} />
     );
 
   return (
@@ -132,7 +116,7 @@ const SignUpForm = () => {
         </h2>
 
         {/* 🔹 GOOGLE SIGNUP (SAME AS LOGIN, ONLY TEXT DIFFERENT) */}
-        <div id="googleButton" className="mb-2"></div>
+        <div ref={googleBtnRef} id="googleButton" className="mb-2"></div>
         <div className="text-center text-gray-400">or</div>
 
         {/* NAME */}
@@ -140,9 +124,7 @@ const SignUpForm = () => {
           type="text"
           placeholder="Full Name"
           value={formData.name}
-          onChange={(e) =>
-            setFormData({ ...formData, name: e.target.value })
-          }
+          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           className="w-full p-3 rounded bg-gray-700 text-white"
         />
 
@@ -151,9 +133,7 @@ const SignUpForm = () => {
           type="email"
           placeholder="Email Address"
           value={formData.email}
-          onChange={(e) =>
-            setFormData({ ...formData, email: e.target.value })
-          }
+          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
           className="w-full p-3 rounded bg-gray-700 text-white"
         />
 
@@ -161,9 +141,7 @@ const SignUpForm = () => {
         <PhoneInput
           country="in"
           value={formData.phone}
-          onChange={(phone) =>
-            setFormData({ ...formData, phone })
-          }
+          onChange={(phone) => setFormData({ ...formData, phone })}
           inputClass="!w-full !bg-gray-700 !text-white !border-none !rounded-lg !pl-14 !h-12"
           buttonClass="!bg-gray-700 !border-none !rounded-l-lg"
           dropdownClass="!bg-gray-800 !text-white"
@@ -211,25 +189,20 @@ const SignUpForm = () => {
           className="w-full p-3 rounded bg-gray-700 text-white"
         >
           <option value="game_player">Game Player</option>
-          <option value="tournament_manager">
-            Tournament Manager
-          </option>
+          <option value="tournament_manager">Tournament Manager</option>
         </select>
 
         <button
           onClick={handleRegister}
           disabled={loading}
-          className="w-full mt-3 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold rounded-lg"
+          className="w-full mt-3 py-3 bg-linear-to-r from-orange-500 to-red-500 text-white font-bold rounded-lg"
         >
           Register Now
         </button>
 
         <p className="text-center text-gray-300 text-sm">
           Already have an account?{" "}
-          <Link
-            to="/login"
-            className="text-orange-400 font-bold"
-          >
+          <Link to="/login" className="text-orange-400 font-bold">
             Login
           </Link>
         </p>
