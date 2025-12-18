@@ -17,6 +17,7 @@ router.get('/checkAuth',protect,checkauth);
 
 router.post("/googleSignup",googleSignup);   
 
+
 // router.get(
 //   '/github',
 //   passport.authenticate('github', { scope: ['user:email'] })

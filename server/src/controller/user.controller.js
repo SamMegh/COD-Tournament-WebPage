@@ -2,8 +2,9 @@ import bcrypt from "bcryptjs";
 import validator from "validator";
 import User from "../model/user.model.js";
 import { generateToken } from "../lib/GenrateToken.js";
+import { OAuth2Client } from "google-auth-library";
 
-
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 export const register = async (req, res) => {
   try {
@@ -99,46 +100,68 @@ export const register = async (req, res) => {
 
 
 
+
+
+// helper: phone clean
+const normalizePhone = (phone) => {
+  let p = phone.replace(/\D/g, ""); // sirf digits
+
+  if (p.startsWith("0")) {
+    p = p.slice(1);
+  }
+
+  if (p.length === 10) {
+    return "+91" + p;
+  }
+
+  if (p.length === 12 && p.startsWith("91")) {
+    return "+" + p;
+  }
+
+  if (p.length === 13 && p.startsWith("91")) {
+    return "+" + p.slice(1);
+  }
+
+  return "+" + p;
+};
+
 export const login = async (req, res) => {
   try {
-    const { emailOrPhone, password } = req.body; // frontend se email ya phone bheje
+    let { emailOrPhone, password } = req.body;
 
-    if (!emailOrPhone || !password) {
-      return res.status(400).json({ success: false, message: "Email/Phone and password required" });
-    }
+    emailOrPhone = emailOrPhone.trim();
 
-    // Email OR Phone se user dhundo
-    const user = await User.findOne({
-      $or: [{ email: emailOrPhone }, { phoneNumber: emailOrPhone }]
-    }).select("+password"); // ✅ password select
+    const isEmail = emailOrPhone.includes("@");
 
-    if (!user) {
-      return res.status(400).json({ success: false, message: "User does not exist" });
-    }
+    const query = isEmail
+      ? { email: emailOrPhone.toLowerCase() }
+      : { phoneNumber: normalizePhone(emailOrPhone) };
 
-    const isPasswordCorrect = await bcrypt.compare(password, user.password);
-    if (!isPasswordCorrect) {
-      return res.status(400).json({ success: false, message: "Invalid credentials" });
-    }
+    const user = await User.findOne(query).select("+password");
 
-   generateToken(res, user._id);
+    if (!user)
+      return res.status(400).json({
+        success: false,
+        message: "User not found",
+      });
 
-    res.status(200).json({ 
-      success: true, 
-      message: "User logged in successfully",   
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        phoneNumber: user.phoneNumber,
-        role: user.role
-      }
-    });
+    const ok = await bcrypt.compare(password, user.password);
+    if (!ok)
+      return res.status(400).json({
+        success: false,
+        message: "Invalid credentials",
+      });
 
-  } catch (error) {
-    res.status(500).json({ success: false, message: "User login failed", error: error.message });
+    generateToken(res, user._id);
+
+    res.json({ success: true, message: "Logged in", user });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
   }
 };
+
+
+
 
 
 export const logout = async (req, res) => {
@@ -159,98 +182,68 @@ export const logout = async (req, res) => {
 
 export const checkauth = (req, res) => {
   res.status(200).json({ success: true, message: "User is authenticated", user: req.user });
-};
-
+  };
 
 
 export const googleSignup = async (req, res) => {
   try {
-    const {
-      name = "Google User",
-      email,
-      phoneNumber,
-      role,
-      password,
-    } = req.body;
+    const { idToken, _id, phoneNumber, password, role } = req.body;
 
-    if (!email) {
-      return res.status(400).json({
-        success: false,
-        message: "Email not received from Google",
-      });
-    }
 
-    const normalizedEmail = email.toLowerCase().trim();
+    if (_id) {
+      if (!phoneNumber || !password || !role)
+        return res.status(400).json({ success: false, message: "All fields required for pending user" });
 
-    let user = await User.findOne({ email: normalizedEmail });
+      const user = await User.findById(_id);
+      if (!user) return res.status(404).json({ success: false, message: "User not found" });
 
- 
- // CREATE GOOGLE USER (PENDING)
-
-    if (!user) {
-      user = await User.create({
-        name,
-        email: normalizedEmail,
-        authProvider: "google",
-        role: "game_player", 
-      });
+      user.phoneNumber = phoneNumber;
+      user.role = role;
+      user.password = await bcrypt.hash(password, 10);
+      await user.save();
 
       generateToken(res, user._id);
-
-      return res.status(200).json({
-        success: true,
-        pending: true,
-        user: {
-          _id: user._id,
-          name: user.name,
-          email: user.email,
-        },
-        message: "Additional info required",
-      });
+      return res.status(200).json({ success: true, pending: false, user, message: "Profile completed & logged in" });
     }
 
-  
-    // COMPLETE GOOGLE SIGNUP
+    //  Google login
+    if (!idToken) return res.status(400).json({ success: false, message: "idToken missing" });
    
-    if (!user.password && password) {
-      user.password = await bcrypt.hash(password, 10);
-    }
-
-    if (phoneNumber) {
-      user.phoneNumber = phoneNumber;
-    }
-
-    if (role && user.role !== role) {
-      user.role = role;
-    }
-
-    await user.save();
-
-
-    //  LOGIN
-    
-    generateToken(res, user._id);
-
-    return res.status(200).json({
-      success: true,
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        phoneNumber: user.phoneNumber || "",
-        role: user.role,
-      },
-      message: "User logged in successfully",
+   const ticket = await client.verifyIdToken({
+      idToken,
+      audience: process.env.GOOGLE_CLIENT_ID,
     });
 
-  } catch (error) {
-    console.error("Google Signup Error:", error);
-    return res.status(500).json({
-      success: false,
-      message: "User login failed",
-    });
+    const payload = ticket.getPayload();
+    const email = payload.email.toLowerCase();
+    const name = payload.name || "Google User";
+
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      // New pending user
+      user = await User.create({ name, email, authProvider: "google" });
+      return res.status(200).json({ success: true, pending: true, user, message: "Complete your profile" });
+    }
+
+    if (user.phoneNumber && user.role) {
+      generateToken(res, user._id);
+      return res.status(200).json({ success: true, pending: false, user, message: "Logged in successfully" });
+    }
+
+    // Existing but incomplete → pending
+    return res.status(200).json({ success: true, pending: true, user, message: "Complete your profile" });
+
+  } catch (err) {
+    console.error("Google Auth Error:", err);
+    return res.status(500).json({ success: false, message: "Google login failed", error: err.message });
   }
 };
+
+
+
+
+
 
 
 
