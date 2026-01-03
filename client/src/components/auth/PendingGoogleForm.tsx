@@ -76,12 +76,12 @@ const PendingGoogleForm: React.FC<Props> = ({ user, setPendingUser }) => {
       // 🔁 role based redirect
       switch (res.data.user.role) {
         case "tournament_manager":
-          navigate("/tournament-dashboard");
+          navigate("/manager");
           break;
 
         case "game_player":
         default:
-          navigate("/player-dashboard");
+          navigate("/player");
           break;
       }
     }
