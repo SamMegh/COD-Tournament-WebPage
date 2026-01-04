@@ -8,76 +8,42 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 export const register = async (req, res) => {
   try {
-    // ✅ Frontend se aane wale exact fields
-    const { name, email, password, phone, role } = req.body;
+    const { name, email, password, phoneNumber,role } = req.body;
 
-    // ✅ Empty check
-    if (!name || !email || !password || !phone) {
-      return res.status(400).json({
-        success: false,
-        message: "All fields are required",
-      });
+    if (!name || !email || !password || !phoneNumber || !role) {
+      return res.status(400).json({ success: false, message: "All fields are required",}); }
+
+  
+    if (!validator.isEmail(email))
+       { return res.status(400).json({ success: false, message: "Invalid email" }); }
+
+    if (!validator.isMobilePhone(phoneNumber)) 
+      {  return res.status(400).json({ success: false, message: "Invalid phone number" }); }
+
+    if (password.length < 6) {
+      return res.status(400).json({ success: false, message: "Password too short" });
     }
 
-    // ✅ Email validation
-    if (!validator.isEmail(email)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid email address",
-      });
+    
+    const existingUser = await User.findOne({ $or: [{ email }, { phoneNumber }],});
+
+    if (existingUser) 
+      { return res.status(400).json({success: false, message: "User already exists",});
     }
 
-    // ✅ Indian phone validation 
-    if (!validator.isMobilePhone(phone)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid phone number",
-      });
-    }
-
-    // ✅ Strong password validation
-    if (
-      !validator.isStrongPassword(password, {
-        minLength: 6,
-   
-      })
-    ) {
-      return res.status(400).json({
-        success: false,
-        message:
-          "Password must contain Uppercase, Lowercase and Number.",
-      });
-    }
-
-    // ✅ Existing user check
-    const existingUser = await User.findOne({
-      $or: [{ email }, { phoneNumber: phone }],
-    });
-
-    if (existingUser) {
-      return res.status(400).json({
-        success: false,
-        message: "User already exists",
-      });
-    }
-
-    // ✅ Hash password
+    // 🔹 hash & create
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // ✅ Create user
     const user = await User.create({
       name,
       email,
-      phoneNumber: phone, // DB me phoneNumber
+      phoneNumber,
       password: hashedPassword,
-      role: role || "game_player",
+      role:  role||"game_player"  // 🔐 always backend controlled
     });
 
-    // ✅ Generate token
     generateToken(res, user._id);
 
-
-    // ✅ Success response
     res.status(201).json({
       success: true,
       message: "User registered successfully",
@@ -89,11 +55,11 @@ export const register = async (req, res) => {
         role: user.role,
       },
     });
-  } catch (error) {
+  } catch (err) {
     res.status(500).json({
       success: false,
       message: "User registration failed",
-      error: error.message,
+      error: err.message,
     });
   }
 };
@@ -102,66 +68,64 @@ export const register = async (req, res) => {
 
 
 
-// helper: phone clean
+// phone normalize helper
 const normalizePhone = (phone) => {
-  let p = phone.replace(/\D/g, ""); // sirf digits
-
-  if (p.startsWith("0")) {
-    p = p.slice(1);
-  }
-
-  if (p.length === 10) {
-    return "+91" + p;
-  }
-
-  if (p.length === 12 && p.startsWith("91")) {
-    return "+" + p;
-  }
-
-  if (p.length === 13 && p.startsWith("91")) {
-    return "+" + p.slice(1);
-  }
-
+  const str = String(phone); // 🔥 safety
+  let p = str.replace(/\D/g, "");
+  if (p.startsWith("0")) p = p.slice(1);
+  if (p.length === 10) return "+91" + p;
+  if (p.startsWith("91")) return "+" + p;
   return "+" + p;
 };
 
 export const login = async (req, res) => {
   try {
-    let { emailOrPhone, password } = req.body;
+    let { emailOrPhone, email, password } = req.body;
 
-    emailOrPhone = emailOrPhone.trim();
+    const identifier = emailOrPhone || email;
 
-    const isEmail = emailOrPhone.includes("@");
+    if (!identifier || !password) {
+      return res.status(400).json({
+        message: "Email/Phone and password required",
+      });
+    }
+
+    const cleanValue = String(identifier).trim();
+    const isEmail = cleanValue.includes("@");
 
     const query = isEmail
-      ? { email: emailOrPhone.toLowerCase() }
-      : { phoneNumber: normalizePhone(emailOrPhone) };
+      ? { email: cleanValue.toLowerCase() }
+      : { phoneNumber: normalizePhone(cleanValue) };
 
     const user = await User.findOne(query).select("+password");
+    if (!user) {
+      return res.status(400).json({ message: "User not found" });
+    }
 
-    if (!user)
-      return res.status(400).json({
-        success: false,
-        message: "User not found",
-      });
-
-    const ok = await bcrypt.compare(password, user.password);
-    if (!ok)
-      return res.status(400).json({
-        success: false,
-        message: "Invalid credentials",
-      });
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
 
     generateToken(res, user._id);
 
-    res.json({ success: true, message: "Logged in", user });
+    return res.status(200).json({
+      success: true,
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+        role: user.role,
+      },
+      
+    });
+
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    console.error("LOGIN ERROR:", err);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
-
-
-
 
 
 export const logout = async (req, res) => {
@@ -187,29 +151,11 @@ export const checkauth = (req, res) => {
 
 export const googleSignup = async (req, res) => {
   try {
-    const { idToken, _id, phoneNumber, password, role } = req.body;
+    const { idToken } = req.body;
+    if (!idToken)
+      return res.status(400).json({ message: "idToken missing" });
 
-
-    if (_id) {
-      if (!phoneNumber || !password || !role)
-        return res.status(400).json({ success: false, message: "All fields required for pending user" });
-
-      const user = await User.findById(_id);
-      if (!user) return res.status(404).json({ success: false, message: "User not found" });
-
-      user.phoneNumber = phoneNumber;
-      user.role = role;
-      user.password = await bcrypt.hash(password, 10);
-      await user.save();
-
-      generateToken(res, user._id);
-      return res.status(200).json({ success: true, pending: false, user, message: "Profile completed & logged in" });
-    }
-
-    //  Google login
-    if (!idToken) return res.status(400).json({ success: false, message: "idToken missing" });
-   
-   const ticket = await client.verifyIdToken({
+    const ticket = await client.verifyIdToken({
       idToken,
       audience: process.env.GOOGLE_CLIENT_ID,
     });
@@ -218,27 +164,29 @@ export const googleSignup = async (req, res) => {
     const email = payload.email.toLowerCase();
     const name = payload.name || "Google User";
 
-    let user = await User.findOne({ email });
+    const user = await User.findOne({ email });
 
-    if (!user) {
-      // New pending user
-      user = await User.create({ name, email, authProvider: "google" });
-      return res.status(200).json({ success: true, pending: true, user, message: "Complete your profile" });
-    }
-
-    if (user.phoneNumber && user.role) {
+    // ✅ Existing & complete user → direct login
+    if (user && user.phoneNumber && user.role) {
       generateToken(res, user._id);
-      return res.status(200).json({ success: true, pending: false, user, message: "Logged in successfully" });
+      return res.json({
+        pending: false,
+        user,
+      });
     }
 
-    // Existing but incomplete → pending
-    return res.status(200).json({ success: true, pending: true, user, message: "Complete your profile" });
+    // ✅ Existing but incomplete OR brand new user
+    return res.json({
+      pending: true,
+      user: { email, name }, // 🔥 SAME KEY EVERY TIME
+    });
 
   } catch (err) {
-    console.error("Google Auth Error:", err);
-    return res.status(500).json({ success: false, message: "Google login failed", error: err.message });
+    return res.status(500).json({ message: "Google login failed" });
   }
 };
+
+
 
 
 

@@ -2,11 +2,11 @@ import React, { useState } from "react";
 import { toast } from "react-toastify";
 import { useNavigate, Link } from "react-router-dom";
 import PhoneInput from "react-phone-input-2";
-import instance from "../lib/Axios";
+import instance from "../../lib/Axios";
 import "react-phone-input-2/lib/style.css";
+import axios from "axios";
 
 interface PendingUser {
-  _id: string;
   name: string;
   email: string;
   role?: string;
@@ -20,6 +20,7 @@ interface Props {
 
 const PendingGoogleForm: React.FC<Props> = ({ user, setPendingUser }) => {
   const navigate = useNavigate();
+
   const [phone, setPhone] = useState(user.phoneNumber || "");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -30,34 +31,69 @@ const PendingGoogleForm: React.FC<Props> = ({ user, setPendingUser }) => {
     e.preventDefault();
 
     // ✅ Validations
-    if (phone.length < 8) return toast.error("Enter valid phone number");
-    if (password.length < 6) return toast.error("Password must be at least 6 characters");
-    if (password !== confirmPassword) return toast.error("Passwords do not match");
+    if (phone.length < 8) {
+      toast.error("Enter valid phone number");
+      return;
+    }
+
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
 
     try {
       setLoading(true);
 
-      const res = await instance.post("/api/googleSignup", {
-        _id: user._id,
+      // 🔐 Pending Google signup complete
+      const res = await instance.post("/api/register", {
+        name: user.name,
+        email: user.email, // ✅ identify user safely
         phoneNumber: `+${phone}`,
         password,
         role,
+        completeProfile: true, // 🔑 backend flag
       });
 
-      // ✅ Success
       toast.success(res.data.message || "Signup completed");
+
+      // clear pending state
       setPendingUser(null);
 
-      // ✅ Store token if backend returns
-      if (res.data.token) localStorage.setItem("token", res.data.token);
-      if (res.data.user) localStorage.setItem("user", JSON.stringify(res.data.user));
+      // store token/user
+      if (res.data.token) {
+        localStorage.setItem("token", res.data.token);
+      }
 
-      // ✅ Redirect
-      const userRole = res.data.user.role;
-      navigate(userRole === "game_player" ? "/player-dashboard" : "/tournament-dashboard");
-    } catch (err: any) {
-      toast.error(err?.response?.data?.message || "Signup failed");
-    } finally {
+      if (res.data.user) {
+        localStorage.setItem("user", JSON.stringify(res.data.user));
+      }
+
+      // 🔁 role based redirect
+      switch (res.data.user.role) {
+        case "tournament_manager":
+          navigate("/manager");
+          break;
+
+        case "game_player":
+        default:
+          navigate("/player");
+          break;
+      }
+    }
+    catch (err: unknown)
+     {
+      if (axios.isAxiosError(err)) {
+        toast.error(err.response?.data?.message || "Google  failed");
+      } else {
+        toast.error("Unexpected error occurred");
+      }
+    
+     } finally {
       setLoading(false);
     }
   };
@@ -68,14 +104,18 @@ const PendingGoogleForm: React.FC<Props> = ({ user, setPendingUser }) => {
         onSubmit={handleSubmit}
         className="bg-gray-800 p-8 rounded-xl shadow-lg w-full max-w-md space-y-4"
       >
-        <h2 className="text-2xl font-bold text-center text-white">Complete Your Signup</h2>
+        <h2 className="text-2xl font-bold text-center text-white">
+          Complete Your Signup
+        </h2>
 
-        {/* Disabled Name & Email */}
+        {/* Name */}
         <input
           value={user.name}
           disabled
           className="w-full p-3 rounded bg-gray-600 text-white cursor-not-allowed"
         />
+
+        {/* Email */}
         <input
           value={user.email}
           disabled
@@ -98,6 +138,7 @@ const PendingGoogleForm: React.FC<Props> = ({ user, setPendingUser }) => {
           onChange={(e) => setPassword(e.target.value)}
           className="w-full p-3 rounded bg-gray-700 text-white"
         />
+
         <input
           type="password"
           placeholder="Confirm Password"
@@ -125,7 +166,7 @@ const PendingGoogleForm: React.FC<Props> = ({ user, setPendingUser }) => {
           {loading ? "Submitting..." : "Complete Signup"}
         </button>
 
-        {/* Login Link */}
+        {/* Login link */}
         <p className="text-center text-gray-300 text-sm">
           Already have an account?{" "}
           <Link to="/login" className="text-orange-400 font-bold">
