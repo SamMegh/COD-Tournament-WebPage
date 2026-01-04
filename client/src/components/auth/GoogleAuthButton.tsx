@@ -10,16 +10,19 @@ type Props = {
 
 const GoogleAuthButton = ({ onSuccess }: Props) => {
   useEffect(() => {
-    if (!window.google) return;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const google = (window as any).google;
 
-    window.google.accounts.id.initialize({
+    if (!google) return;
+
+    google.accounts.id.initialize({
       client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-      callback: onSuccess, //  bas yahi logic
+      callback: onSuccess,
     });
 
     const el = document.getElementById("googleBtn");
     if (el) {
-      window.google.accounts.id.renderButton(el, {
+      google.accounts.id.renderButton(el, {
         theme: "outline",
         size: "large",
       });

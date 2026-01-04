@@ -28,7 +28,7 @@ export const register = async (req, res) => {
     const existingUser = await User.findOne({ $or: [{ email }, { phoneNumber }],});
 
     if (existingUser) 
-      { return res.status(400).json({success: false, message: "User already exists",});
+      { return res.status(409).json({success: false, message: "User already exists",});
     }
 
     // 🔹 hash & create
@@ -39,12 +39,12 @@ export const register = async (req, res) => {
       email,
       phoneNumber,
       password: hashedPassword,
-      role:  role||"game_player"  // 🔐 always backend controlled
+      role:  role||"game_player"  //  always backend controlled
     });
 
     generateToken(res, user._id);
 
-    res.status(201).json({
+    res.status(200).json({
       success: true,
       message: "User registered successfully",
       user: {
@@ -99,12 +99,12 @@ export const login = async (req, res) => {
 
     const user = await User.findOne(query).select("+password");
     if (!user) {
-      return res.status(400).json({ message: "User not found" });
+      return res.status(404).json({ message: "User not found" });
     }
 
     const match = await bcrypt.compare(password, user.password);
     if (!match) {
-      return res.status(400).json({ message: "Invalid credentials" });
+      return res.status(401).json({ message: "Invalid credentials" });
     }
 
     generateToken(res, user._id);
@@ -166,7 +166,7 @@ export const googleSignup = async (req, res) => {
 
     const user = await User.findOne({ email });
 
-    // ✅ Existing & complete user → direct login
+    //  Existing & complete user → direct login
     if (user && user.phoneNumber && user.role) {
       generateToken(res, user._id);
       return res.json({
@@ -175,7 +175,7 @@ export const googleSignup = async (req, res) => {
       });
     }
 
-    // ✅ Existing but incomplete OR brand new user
+    //  Existing but incomplete OR brand new user
     return res.json({
       pending: true,
       user: { email, name }, // 🔥 SAME KEY EVERY TIME

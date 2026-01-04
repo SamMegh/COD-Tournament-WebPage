@@ -10,7 +10,7 @@ import RulesPage from "./screen/RulesPage";
 import PlayerRegistrationForm from "./components/playerRegistationForm";
 import ManagerPage from "./screen/ManagerPage.tsx";
 import Player from "./screen/Player.tsx";
-import NotFound from "./screen/NotFound.tsx";
+import NotFound1 from "./pages/Not.Found.Page/404.nfp.tsx";
 
 
 const ScrollToHash = () => {
@@ -58,7 +58,7 @@ const hideNavbar =
           <Route path="/signup" element={<Signup />} />
           <Route path="/login" element={<LoginPage />} />
           
-          <Route path="*" element={<NotFound />} />
+          <Route path="*" element={<NotFound1 />} />
         
          
   

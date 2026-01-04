@@ -17,3 +17,11 @@ export interface LoginPayload {
   password: string;
 }
 
+
+// export {};
+
+// declare global {
+//   interface Window {
+//     google:unknown;
+//   }
+// }
