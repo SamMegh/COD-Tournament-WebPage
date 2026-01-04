@@ -1,10 +1,6 @@
 import jwt from "jsonwebtoken";
 import User from "../model/user.model.js";
-/**
- * OPTIONAL AUTH
- * Token hoga to req.user attach karega
- * Token nahi hoga to next()
- */
+
 export const protect = async (req, res, next) => {
   const token = req.cookies.token || "";
   if (!token) {
@@ -28,5 +24,24 @@ export const protect = async (req, res, next) => {
     });
   }
   req.user = user;
+  next();
+};
+
+
+export const isManager = (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({
+      success: false,
+      message: "Unauthorized",
+    });
+  }
+
+  if (req.user.role !== "tournament_manager") {
+    return res.status(403).json({
+      success: false,
+      message: "Access denied: Manager only",
+    });
+  }
+
   next();
 };
