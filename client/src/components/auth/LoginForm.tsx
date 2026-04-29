@@ -2,10 +2,9 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import AuthInput from "./AuthInput";
-import useLogin from "../../hooks/auth/use.Login";
 import GoogleAuthButton from "./GoogleAuthButton";
-import useGoogleAuth from "../../hooks/auth/google";
 import PendingGoogleForm from "../../components/auth/PendingGoogleForm";
+import {useLogin,useGoogleAuth} from "../../files/CheckAuthFile"
 
 
 function LoginForm() {

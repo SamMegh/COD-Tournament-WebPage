@@ -5,12 +5,10 @@ import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import AuthInput from "./AuthInput";
 import RoleSelect from "./RoleSelect";
-import { useSignup } from "../../hooks/auth/use.Signup";  
-import type { SignupPayload } from "../../interface/auth.types";
-import type { UserRole } from "../../interface/auth.types";
+import type { SignupPayload,UserRole } from "../../Interface/auth.types";
 import GoogleAuthButton from "./GoogleAuthButton";
-import useGoogleAuth from "../../hooks/auth/google";
 import PendingGoogleForm from "../../components/auth/PendingGoogleForm";
+import { useSignup,useGoogleAuth } from "../../files/CheckAuthFile";
 
 
 const SignupForm = () => {
@@ -21,9 +19,8 @@ const SignupForm = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [role, setRole] = useState<UserRole>("game_player");
-      const { handleGoogleLogin, pendingUser, setPendingUser } = useGoogleAuth();
-
-  const { signup, loading } = useSignup();
+  const { handleGoogleLogin, pendingUser, setPendingUser } = useGoogleAuth();
+   const { signup, loading } = useSignup();
 
   //  Simple submit logic
   const handleSubmit = async () => {
@@ -43,8 +40,6 @@ const SignupForm = () => {
 
     await signup(payload);
   };
-
-
   //  pending true → sirf Pending form
   if (pendingUser) {
     return (
