@@ -17,7 +17,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: "cod-tournament-web-page-7c29u87xq-ankits-projects-85641e48.vercel.app",
   credentials: true
 }));
 
