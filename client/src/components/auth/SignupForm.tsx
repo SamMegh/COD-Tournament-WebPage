@@ -5,7 +5,7 @@ import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import AuthInput from "./AuthInput";
 import RoleSelect from "./RoleSelect";
-import type { SignupPayload,UserRole } from "../../interface/auth.types";
+import type { SignupPayload,UserRole } from "../../Interface/auth.types";
 import GoogleAuthButton from "./GoogleAuthButton";
 import PendingGoogleForm from "../../components/auth/PendingGoogleForm";
 import { useSignup,useGoogleAuth } from "../../files/CheckAuthFile";

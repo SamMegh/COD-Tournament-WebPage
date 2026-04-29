@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import instance from "../lib/Axios";
-import type { SignupPayload,LoginPayload,UserRole } from "../interface/auth.types";
+import type { SignupPayload,LoginPayload,UserRole } from "../Interface/auth.types";
 
 type GoogleResponse = {
   credential: string;
