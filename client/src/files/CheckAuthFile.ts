@@ -3,7 +3,26 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import instance from "../lib/Axios";
-import type { SignupPayload,LoginPayload,UserRole } from "../Interface/auth.types.ts";
+
+
+export type UserRole = "game_player" | "tournament_manager";
+
+
+export interface SignupPayload {
+  name: string;
+  email: string;
+  password: string;
+  ConfirmPassword: string;
+  phoneNumber?: string;
+  role: UserRole;
+}
+
+
+export interface LoginPayload {
+  emailOrPhone: string;
+  password: string;
+}
+
 
 type GoogleResponse = {
   credential: string;

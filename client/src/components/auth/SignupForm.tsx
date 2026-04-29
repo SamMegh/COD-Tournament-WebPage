@@ -5,10 +5,28 @@ import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import AuthInput from "./AuthInput";
 import RoleSelect from "./RoleSelect";
-import type { SignupPayload,UserRole } from "../../Interface/auth.types.ts";
 import GoogleAuthButton from "./GoogleAuthButton";
 import PendingGoogleForm from "../../components/auth/PendingGoogleForm";
 import { useSignup,useGoogleAuth } from "../../files/CheckAuthFile";
+
+
+export type UserRole = "game_player" | "tournament_manager";
+
+
+export interface SignupPayload {
+  name: string;
+  email: string;
+  password: string;
+  ConfirmPassword: string;
+  phoneNumber?: string;
+  role: UserRole;
+}
+
+
+export interface LoginPayload {
+  emailOrPhone: string;
+  password: string;
+}
 
 
 const SignupForm = () => {
